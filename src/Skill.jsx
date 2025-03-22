@@ -23,6 +23,11 @@ import { generateClient } from "aws-amplify/data";
 import outputs from "../amplify_outputs.json";
 import { NotificationRule } from "aws-cdk-lib/aws-codestarnotifications";
 
+import PlusImage from "./assets/plus.svg";
+import MinusImage from "./assets/minus.svg";
+import EditImage from "./assets/edit.svg";
+
+
 /**
  * @type {import('aws-amplify/data').Client<import('../amplify/data/resource').Schema>}
  */
@@ -75,6 +80,11 @@ export function Skills() {
         fetchSkills();
       }
 
+      async function editSkill ({}) {
+        return (
+          <p>Skill Edit!!!!</p>
+        )
+      }
 
     function Skill({aSkill}) {
 
@@ -86,9 +96,39 @@ export function Skills() {
             <TableCell>{aSkill.die}</TableCell>
             <TableCell>{aSkill.modifier}</TableCell>
             <TableCell><Button
-                        variation="destructive"
+                        
+                        variation="link"
                         onClick={() => deleteSkill(aSkill)}
-                    >-</Button>
+                    >
+                    <Image
+                        alt="Add"
+                        src={MinusImage}
+                        objectFit="initial"
+                        objectPosition="50% 50%"
+                        backgroundColor="initial"
+                        height="20px"
+                        width="20px"
+                        opacity="100%"
+                      />
+
+                    </Button>
+                    <Button
+                        
+                        variation="link"
+                        onClick={() => editSkill(aSkill)}
+                    >
+                    <Image
+                        alt="Add"
+                        src={EditImage}
+                        objectFit="initial"
+                        objectPosition="50% 50%"
+                        backgroundColor="initial"
+                        height="20px"
+                        width="20px"
+                        opacity="100%"
+                      />
+
+                    </Button>
         </TableCell>
         </TableRow>
         )
@@ -101,7 +141,18 @@ export function Skills() {
     <Tabs.Container  defaultValue='1'>
     <Tabs.List indicatorPosition="top">
       <Tabs.Item value="1">Skills</Tabs.Item>
-      <Tabs.Item value="2">Add</Tabs.Item>
+      <Tabs.Item value="2">
+      <Image
+          alt="Add"
+          src={PlusImage}
+          objectFit="initial"
+          objectPosition="50% 50%"
+          backgroundColor="initial"
+          height="20px"
+          width="20px"
+          opacity="100%"
+        />
+      </Tabs.Item>
     </Tabs.List>
     <Tabs.Panel value="1">
     

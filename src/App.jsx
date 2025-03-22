@@ -25,7 +25,6 @@ import { NotificationRule } from "aws-cdk-lib/aws-codestarnotifications";
 
 import { Skills } from "./Skill.jsx";
 
-//import { Skills } from "Skill.jsk"
 /**
  * @type {import('aws-amplify/data').Client<import('../amplify/data/resource').Schema>}
  */
