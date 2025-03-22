@@ -22,6 +22,9 @@ import { uploadData } from "aws-amplify/storage";
 import { generateClient } from "aws-amplify/data";
 import outputs from "../amplify_outputs.json";
 import { NotificationRule } from "aws-cdk-lib/aws-codestarnotifications";
+
+import { Skills } from "./Skill.jsx";
+
 //import { Skills } from "Skill.jsk"
 /**
  * @type {import('aws-amplify/data').Client<import('../amplify/data/resource').Schema>}
@@ -84,92 +87,7 @@ function SkillForm ({createFunction}) {
    )
 }
 
-function Skills() {
-    const [skills, setSkills] = useState([]);
 
-    useEffect(() => {
-        fetchSkills();
-      }, []);
-
-    async function fetchSkills() {
-        const { data: skills } = await client.models.Skill.list();
-        setSkills(skills);
-
-    }
-    
-    async function deleteSkill({ id }) {
-        console.log("--------------")
-        console.log(id);
-        console.log("--------------")
-        const toBeDeletedNote = {
-          id: id,
-        };
-    
-        const { data: deletedNote } = await client.models.Skill.delete(
-          toBeDeletedNote
-        );
-        console.log(deletedNote);
-        fetchSkills();
-      }
-
-
-    function Skill({aSkill}) {
-
-       // console.log(aSkill);
-
-        return (
-        <TableRow key={aSkill.id}>
-            <TableCell>{aSkill.name}</TableCell>
-            <TableCell>{aSkill.die}</TableCell>
-            <TableCell>{aSkill.description}</TableCell>
-            <TableCell><Button
-                        variation="destructive"
-                        onClick={() => deleteSkill(aSkill)}
-                    >-</Button>
-        </TableCell>
-        </TableRow>
-        )
-    
-    }
-
-  return (
-    <View>
-    <Tabs.Container>
-    <Tabs.List indicatorPosition="top">
-      <Tabs.Item value="1">Skills</Tabs.Item>
-      <Tabs.Item value="2">Add</Tabs.Item>
-    </Tabs.List>
-    <Tabs.Panel value="1">
-    
-    <Table
-            caption=""
-            highlightOnHover={false}
-            size="small"
-            variation="striped">
-               
-    <TableHead>
-    <TableRow>
-      <TableCell as="th">Name</TableCell>
-      <TableCell as="th">die Fruit</TableCell>
-      <TableCell as="th">Description</TableCell>
-      <TableCell as="th">Del</TableCell>
-    </TableRow>
-  </TableHead>
-  <TableBody>
-
-    {skills.map((note) => (
-        <Skill aSkill={note}/>
-
-
-    ))}
-  </TableBody>
-</Table>
-</Tabs.Panel>
-<Tabs.Panel value="2">Tab 2 content</Tabs.Panel>
-</Tabs.Container>
-</View>
-  )
-}
 
 
 export default function App() {
