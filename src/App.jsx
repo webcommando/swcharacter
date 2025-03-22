@@ -24,6 +24,7 @@ import outputs from "../amplify_outputs.json";
 import { NotificationRule } from "aws-cdk-lib/aws-codestarnotifications";
 
 import { Skills } from "./Skill.jsx";
+import { Gear } from "./Gear.jsx";
 
 /**
  * @type {import('aws-amplify/data').Client<import('../amplify/data/resource').Schema>}
@@ -34,59 +35,6 @@ const client = generateClient({
   authMode: "userPool",
 });
 
-function SkillForm ({createFunction}) {
-   return (
-    <View as="form" margin="3rem 0" onSubmit={createFunction}>
-    <Table
-                caption=""
-                highlightOnHover={false}
-                size="small"
-                variation="striped">
-    <TableBody>
-      <TableCell> 
-        <TextField
-        name="name"
-        placeholder="name"
-        label="Note Name"
-        labelHidden
-        variation="quiet"
-        required
-      /></TableCell>
-      <TableCell>      <TextField
-        name="description"
-        placeholder="Note Description"
-        label="Note Description"
-        labelHidden
-        variation="quiet"
-        required
-      /></TableCell>
-      <TableCell><TextField
-        name="die"
-        placeholder="Note Description"
-        label="Note Description"
-        labelHidden
-        variation="quiet"
-        required
-      /></TableCell>
-      <TableCell>       <TextField
-        name="modifier"
-        placeholder="Note Description"
-        label="Note Description"
-        labelHidden
-        variation="quiet"
-        required
-      /></TableCell>
-      <TableCell> <Button type="submit" variation="primary">
-                   (+)
-      </Button>
-   </TableCell>
-    </TableBody>
-    </Table>
-    </View>
-   )
-}
-
-
 
 
 export default function App() {
@@ -95,99 +43,13 @@ export default function App() {
 
   const { tokens } = useTheme();
 
-//   useEffect(() => {
-//     fetchSkills();
-//   }, []);
-
-  async function fetchNotes() {
-    const { data: notes } = await client.models.Note.list();
-    await Promise.all(
-      notes.map(async (note) => {
-        // if (note.image) {
-        //   const linkToStorageFile = await getUrl({
-        //     path: ({ identityId }) => `media/${identityId}/${note.image}`,
-        //   });
-        //   console.log(linkToStorageFile.url);
-        //   note.image = linkToStorageFile.url;
-        // }
-        return note;
-      })
-    );
-    console.log(notes);
-    setNotes(notes);
-  }
-
-  async function createSkill(event) {
-    event.preventDefault();
-
-    const form = new FormData(event.target);
-    const {data: newSkill} = await client.models.Skill.create({
-      name: form.get("name"),
-      description: form.get("description"),
-      die: form.get("die"),
-      modifier: form.get("modifier")
-    });
-
-    fetchSkills();
-    event.target.reset();
-  }
-
-  async function createNote(event) {
-    event.preventDefault();
-    const form = new FormData(event.target);
-    console.log(form.get("image").name);
-
-    const { data: newNote } = await client.models.Note.create({
-      name: form.get("name"),
-      description: form.get("description"),
-      image: form.get("image").name,
-    });
-
-    console.log(newNote);
-    // if (newNote.image)
-    //   if (newNote.image)
-        // await uploadData({
-        //   path: ({ identityId }) => `media/${identityId}/${newNote.image}`,
-
-        //   data: form.get("image"),
-        // }).result;
-
-    fetchNotes();
-    event.target.reset();
-  }
-
-  async function deleteNote({ id }) {
-    const toBeDeletedNote = {
-      id: id,
-    };
-
-    
-    const { data: deletedNote } = await client.models.Note.delete(
-      toBeDeletedNote
-    );
-    console.log(deletedNote);
-    fetchNotes();
-  }
-
-
-
-  async function deleteSkill({ id }) {
-    const toBeDeletedSkill = {
-      id: id,
-    };
-    const { data: deletedSkill } = await client.models.Skill.delete(
-      toBeDeletedSkill
-    );
-    //console.log(deletedNote);
-    fetchSkills();
-  }
 
   return (
     <Authenticator>
    {({ signOut }) => (
     <View
       as="div"
-      ariaLabel="View example"
+      ariaLabel="Character Sheet"
       backgroundColor="var(--amplify-colors-white)"
       borderRadius="6px"
       border="1px solid var(--amplify-colors-black)"
@@ -248,54 +110,9 @@ export default function App() {
             columnEnd="3"
           >
             Gear
+            <Gear />
 
-            <View as="form" margin="3rem 0" onSubmit={createSkill}>
-             <Flex
-               direction="column"
-               justifyContent="center"
-               gap="2rem"
-               padding="2rem"
-             >
-               <TextField
-                 name="name"
-                 placeholder="Note Name"
-                 label="Note Name"
-                 labelHidden
-                 variation="quiet"
-                 required
-               />
-               <TextField
-                 name="description"
-                 placeholder="Note Description"
-                 label="Note Description"
-                 labelHidden
-                 variation="quiet"
-                 required
-               />
-               <TextField
-                 name="die"
-                 placeholder="Note Description"
-                 label="Note Description"
-                 labelHidden
-                 variation="quiet"
-                 required
-               />
-                <TextField
-                 name="modifier"
-                 placeholder="Note Description"
-                 label="Note Description"
-                 labelHidden
-                 variation="quiet"
-                 required
-               />
-
-
-             <Button type="submit" variation="primary">
-                             Create Skill
-               </Button>
-             </Flex>
-             </View>
-
+            
 
           </Card>
           <Card
@@ -304,42 +121,7 @@ export default function App() {
             columnEnd="-1"
           >   
             Edges and Hindrances 
-           <View as="form" margin="3rem 0" onSubmit={createNote}>
-             <Flex
-               direction="column"
-               justifyContent="center"
-               gap="2rem"
-               padding="2rem"
-             >
-               <TextField
-                 name="name"
-                 placeholder="Note Name"
-                 label="Note Name"
-                 labelHidden
-                 variation="quiet"
-                 required
-               />
-               <TextField
-                 name="description"
-                 placeholder="Note Description"
-                 label="Note Description"
-                 labelHidden
-                 variation="quiet"
-                 required
-               />
-               <View
-                 name="image"
-                 as="input"
-                 type="file"
-                 alignSelf={"end"}
-                 accept="image/png, image/jpeg"
-               />
-
-             <Button type="submit" variation="primary">
-                             Create Note
-               </Button>
-             </Flex>
-             </View>
+          
           </Card>
           <Card
            backgroundColor={tokens.colors.blue[10]}

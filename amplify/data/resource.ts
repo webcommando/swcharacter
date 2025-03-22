@@ -23,9 +23,19 @@ const schema = a.schema({
       modifier: a.string(),
     })
     .authorization((allow) => [allow.owner()]),
- 
+    Gear: a
+    .model({
+      name:a.string(),
+      description: a.string(),
+      weight: a.string(),
+      
+    })
+    .authorization((allow) => [allow.owner()]),
+
     
 });
+console.log(">>> Schema >>>");
+console.log(schema);
 
 export type Schema = ClientSchema<typeof schema>;
 

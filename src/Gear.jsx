@@ -5,6 +5,7 @@ import {
   Tabs,
   Text,
   TextField,
+  TextAreaField,
   Heading,
   Flex,
   View,
@@ -38,41 +39,42 @@ const client = generateClient({
   authMode: "userPool",
 });
 
-export function Skills() {
-    const [skills, setSkills] = useState([]);
-    const [selectedSkill, setSelectedSkill] = useState(
-      { id:"", description:"", modifier:"", name:"", die:""}
+export function Gear() {
+    const [items, setItems] = useState([]);
+    const [selectedItem, setSelectedItem] = useState(
+      { id:"", description:"", weight:"", name:""}
       );
     const [tab, setTab] = useState('1');
 
     useEffect(() => {
-        fetchSkills();
+        fetchGear();
   
       }, []);
 
 
-    async function fetchSkills() {
-        const { data: skills } = await client.models.Skill.list();
-        setSkills(skills);
+    async function fetchGear() {
+      console.log(client.models);
+        const { data: items } = await client.models.Gear.list();
+        setItems(items);
       
     }
 
-    async function createSkill(event) {
+    async function createItem(event) {
       event.preventDefault();
   
       const form = new FormData(event.target);
-      const {data: newSkill} = await client.models.Skill.create({
+      const {data: newItem} = await client.models.Gear.create({
         name: form.get("name"),
         description: form.get("description"),
-        die: form.get("die"),
-        modifier: form.get("modifier")
+        weight: form.get("weight"),
+        
       });
   
-      fetchSkills();
+      fetchGear();
       event.target.reset();
     }
     
-    async function deleteSkill({ id }) {
+    async function deleteItem({ id }) {
         console.log("--------------")
         console.log(id);
         console.log("--------------")
@@ -81,41 +83,41 @@ export function Skills() {
           
         };
     
-        const { data: deletedNote } = await client.models.Skill.delete(
+        const { data: deletedNote } = await client.models.Gear.delete(
           toBeDeletedNote
         );
         console.log(deletedNote);
-        fetchSkills();
+        fetchGear();
       }
 
-      async function editSkill (event) {
+      async function editItem (event) {
         event.preventDefault();
         const form = new FormData(event.target);
-        const {data: updatedSkill, errors} = await client.models.Skill.update( {
-          id: selectedSkill.id,
+        const {data: updatedItem, errors} = await client.models.Gear.update( {
+          id: selectedItem.id,
           name: form.get("name"),
           description: form.get("description"),
-          die: form.get("die"),
-          modifier: form.get("modifier")
+          weight: form.get("weight"),
+      
         })
         console.log("errors:")
         console.log(errors);
 
-        fetchSkills();
+        fetchGear();
         setTab("1");
         event.target.reset();
         
       }
 
-    function Skill({aSkill}) {
+    function Item({aItem}) {
 
        // console.log(aSkill);
 
         return (
-        <TableRow key={aSkill.id}>
-            <TableCell>{aSkill.name}</TableCell>
-            <TableCell>{aSkill.die}</TableCell>
-            <TableCell>{aSkill.modifier}</TableCell>
+        <TableRow key={aItem.id}>
+            <TableCell>{aItem.name}</TableCell>
+            <TableCell>{aItem.weight}</TableCell>
+
             <TableCell>
             <Image
                         alt="Add"
@@ -126,7 +128,7 @@ export function Skills() {
                         height="20px"
                         width="20px"
                         opacity="100%"
-                        onClick={() => deleteSkill(aSkill)}
+                        onClick={() => deleteItem(aItem)}
                       />
 
                     <Image
@@ -138,7 +140,7 @@ export function Skills() {
                         height="20px"
                         width="20px"
                         opacity="100%"
-                        onClick={() => {setTab('3'); setSelectedSkill(aSkill);}}
+                        onClick={() => {setTab('3'); setSelectedItem(aItem);}}
                       />
                     
         </TableCell>
@@ -152,7 +154,7 @@ export function Skills() {
     <View>
     <Tabs.Container  defaultValue='1' value={tab} onValueChange={(tab) => setTab(tab)} color="var(--amplify-colors-blue-60)">
     <Tabs.List indicatorPosition="top">
-      <Tabs.Item value="1">Skills</Tabs.Item>
+      <Tabs.Item value="1">Gear</Tabs.Item>
       <Tabs.Item value="2">
         <Image
             alt="Add"
@@ -180,21 +182,20 @@ export function Skills() {
         <TableHead>
         <TableRow>
           <TableCell as="th">Name</TableCell>
-          <TableCell as="th">Die</TableCell>
-          <TableCell as="th">Mod</TableCell>
+          <TableCell as="th">Weight</TableCell>
           <TableCell as="th"></TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
 
-        {skills.map((note) => (
-            <Skill aSkill={note}/>
+        {items.map((note) => (
+            <Item aItem={note}/>
         ))}
       </TableBody>
     </Table>
   </Tabs.Panel>
   <Tabs.Panel value="2">
-      <View as="form" margin="3rem 0" onSubmit={createSkill}>
+      <View as="form" margin="3rem 0" onSubmit={createItem}>
              <Flex
                direction="column"
                justifyContent="center"
@@ -209,7 +210,7 @@ export function Skills() {
                  variation="quiet"
                  required
                />
-               <TextField
+               <TextAreaField
                  name="description"
                  placeholder="Description"
                  label="Description"
@@ -218,17 +219,9 @@ export function Skills() {
                  required
                />
                <TextField
-                 name="die"
-                 placeholder="die sides"
-                 label="Sides"
-                 labelHidden
-                 variation="quiet"
-                 required
-               />
-                <TextField
-                 name="modifier"
-                 placeholder="Modifier"
-                 label="Modifier"
+                 name="weight"
+                 placeholder="Weight"
+                 label="Weight"
                  labelHidden
                  variation="quiet"
                  required
@@ -236,13 +229,13 @@ export function Skills() {
 
 
              <Button type="submit" variation="primary">
-                             Create Skill
+                             Create Item
                </Button>
              </Flex>
              </View>
 </Tabs.Panel>
 <Tabs.Panel value="3">
-<View as="form" margin="3rem 0" onSubmit={editSkill}>
+<View as="form" margin="3rem 0" onSubmit={editItem}>
              <Flex
                direction="column"
                justifyContent="center"
@@ -257,39 +250,29 @@ export function Skills() {
                  labelHidden
                  variation="quiet"
                  required
-                 defaultValue = {selectedSkill.name}
+                 defaultValue = {selectedItem.name}
                />
-               <TextField
+               <TextAreaField
                  name="description"
                  placeholder="Description"
                  label="Description"
                  labelHidden
                  variation="quiet"
                  required
-                 defaultValue = {selectedSkill.description}
+                 defaultValue = {selectedItem.description}
                />
                <TextField
-                 name="die"
-                 placeholder="die sides"
-                 label="Sides"
+                 name="weight"
+                 placeholder="weight"
+                 label="Weight"
                  labelHidden
                  variation="quiet"
                  required
-                 defaultValue = {selectedSkill.die}
+                 defaultValue = {selectedItem.weight}
                />
-                <TextField
-                 name="modifier"
-                 placeholder="Modifier"
-                 label="Modifier"
-                 labelHidden
-                 variation="quiet"
-                 required
-                 defaultValue={selectedSkill.modifier}
-               />
-
 
              <Button type="submit" variation="primary">
-                             Edit Skill
+                             Edit Item
                </Button>
              </Flex>
              </View>

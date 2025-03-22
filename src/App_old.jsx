@@ -85,6 +85,8 @@ function SkillForm ({createFunction}) {
 
 function Skills( {theNotes}) {
 
+
+  
   return (
 <Table
                 caption=""
