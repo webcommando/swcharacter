@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import {
   Authenticator,
   Button,
-  Tabs,
   Text,
   TextField,
   Heading,
@@ -84,68 +83,14 @@ function SkillForm ({createFunction}) {
    )
 }
 
-function Skills() {
-    const [skills, setSkills] = useState([]);
-
-    useEffect(() => {
-        fetchSkills();
-      }, []);
-
-    async function fetchSkills() {
-        const { data: skills } = await client.models.Skill.list();
-        setSkills(skills);
-
-    }
-    
-    async function deleteSkill({ id }) {
-        console.log("--------------")
-        console.log(id);
-        console.log("--------------")
-        const toBeDeletedNote = {
-          id: id,
-        };
-    
-        const { data: deletedNote } = await client.models.Skill.delete(
-          toBeDeletedNote
-        );
-        console.log(deletedNote);
-        fetchSkills();
-      }
-
-
-    function Skill({aSkill}) {
-
-       // console.log(aSkill);
-
-        return (
-        <TableRow key={aSkill.id}>
-            <TableCell>{aSkill.name}</TableCell>
-            <TableCell>{aSkill.die}</TableCell>
-            <TableCell>{aSkill.description}</TableCell>
-            <TableCell><Button
-                        variation="destructive"
-                        onClick={() => deleteSkill(aSkill)}
-                    >-</Button>
-        </TableCell>
-        </TableRow>
-        )
-    
-    }
+function Skills( {theNotes}) {
 
   return (
-    <View>
-    <Tabs.Container>
-    <Tabs.List indicatorPosition="top">
-      <Tabs.Item value="1">Skills</Tabs.Item>
-      <Tabs.Item value="2">Add</Tabs.Item>
-    </Tabs.List>
-    <Tabs.Panel value="1">
-    
-    <Table
-            caption=""
-            highlightOnHover={false}
-            size="small"
-            variation="striped">
+<Table
+                caption=""
+                highlightOnHover={false}
+                size="small"
+                variation="striped">
                
     <TableHead>
     <TableRow>
@@ -157,30 +102,46 @@ function Skills() {
   </TableHead>
   <TableBody>
 
-    {skills.map((note) => (
-        <Skill aSkill={note}/>
+    <Skill name="Walking" die="d4" description="Test" id="" />
+    <Skill name="Sneaking" die="d6" description="Sneakily" id=""/>
+
+    {theNotes.map((note) => (
+        <Skill name={note.name} die="DD" description={note.description} id={note.id}/>
 
 
     ))}
   </TableBody>
 </Table>
-</Tabs.Panel>
-<Tabs.Panel value="2">Tab 2 content</Tabs.Panel>
-</Tabs.Container>
-</View>
+
   )
 }
 
+function Skill({name, die, description, id}) {
+
+  return (
+    <TableRow>
+        <TableCell>{name}</TableCell>
+        <TableCell>{die}</TableCell>
+        <TableCell>{description}</TableCell>
+        <TableCell><Button
+                   variation="destructive"
+                   onClick={() => deletSkill(id)}
+                 >-</Button>
+   </TableCell>
+    </TableRow>
+  )
+
+}
 
 export default function App() {
   const [notes, setNotes] = useState([]);
-
+  const [skills, setSkills] = useState([]);
 
   const { tokens } = useTheme();
 
-//   useEffect(() => {
-//     fetchSkills();
-//   }, []);
+  useEffect(() => {
+    fetchSkills();
+  }, []);
 
   async function fetchNotes() {
     const { data: notes } = await client.models.Note.list();
@@ -198,6 +159,12 @@ export default function App() {
     );
     console.log(notes);
     setNotes(notes);
+  }
+
+  async function fetchSkills() {
+    const { data: skills } = await client.models.Skill.list();
+    setSkills(skills);
+
   }
 
   async function createSkill(event) {
@@ -252,7 +219,17 @@ export default function App() {
     fetchNotes();
   }
 
+  async function deleteSkill({ id }) {
+    const toBeDeletedNote = {
+      id: id,
+    };
 
+    const { data: deletedNote } = await client.models.Skill.delete(
+      toBeDeletedNote
+    );
+    console.log(deletedNote);
+    fetchSkills();
+  }
 
   async function deleteSkill({ id }) {
     const toBeDeletedSkill = {
@@ -322,7 +299,7 @@ export default function App() {
             backgroundColor={tokens.colors.blue[10]}
           >
             Skills
-          <Skills  />              
+          <Skills theNotes={skills} />              
                 
           </Card>
           <Card
