@@ -8,6 +8,8 @@ and "delete" any "Todo" records.
 =========================================================================*/
 
 const schema = a.schema({
+  
+  
   Note: a
     .model({
       name:a.string(),
@@ -31,7 +33,26 @@ const schema = a.schema({
       
     })
     .authorization((allow) => [allow.owner()]),
-
+    Hindrance: a
+    .model({
+      name:a.string(),
+      description: a.string(),
+      
+    })
+    .authorization((allow) => [allow.owner()]),
+    Edge: a
+    .model({
+      name:a.string(),
+      description: a.string(),
+    })
+    .authorization((allow) => [allow.owner()]),
+    Attr: a
+    .model({
+      name:a.string(),
+      die:a.string(),
+      modifier:a.string()
+    })
+    .authorization((allow) => [allow.owner()]),
     
 });
 console.log(">>> Schema >>>");

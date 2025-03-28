@@ -39,11 +39,22 @@ const client = generateClient({
   authMode: "userPool",
 });
 
+//
+//
+// Gear display object 
+//
+//
 export function Gear() {
+  // List of item in the gear inventory
     const [items, setItems] = useState([]);
+  // Sum of the weight for the items inventory
+    const [itemSum, setSum] = useState(0);
+  // The current selected item from the edit button click
     const [selectedItem, setSelectedItem] = useState(
       { id:"", description:"", weight:"", name:""}
       );
+
+  // Current tab to display 
     const [tab, setTab] = useState('1');
 
     useEffect(() => {
@@ -51,14 +62,26 @@ export function Gear() {
   
       }, []);
 
-
+    //
+    // Get a list of items in inventory from storage
+    //
     async function fetchGear() {
       console.log(client.models);
         const { data: items } = await client.models.Gear.list();
+        let sum = 0;
+
+      for (const item in items) {
+        console.log("Value:", parseFloat(items[item].weight));
+        sum += parseFloat(items[item].weight);
+      }
+        setSum(sum);
         setItems(items);
       
     }
 
+    // 
+    // Create an item in inventory in storage
+    //
     async function createItem(event) {
       event.preventDefault();
   
@@ -74,6 +97,9 @@ export function Gear() {
       event.target.reset();
     }
     
+    //
+    // Delete an item from storage
+    //
     async function deleteItem({ id }) {
         console.log("--------------")
         console.log(id);
@@ -90,6 +116,9 @@ export function Gear() {
         fetchGear();
       }
 
+      //
+      // Edit an item in storage based on the selections
+      //
       async function editItem (event) {
         event.preventDefault();
         const form = new FormData(event.target);
@@ -109,6 +138,9 @@ export function Gear() {
         
       }
 
+      //
+      // The UI element for a single item
+      //
     function Item({aItem}) {
 
        // console.log(aSkill);
@@ -116,7 +148,7 @@ export function Gear() {
         return (
         <TableRow key={aItem.id}>
             <TableCell>{aItem.name}</TableCell>
-            <TableCell>{aItem.weight}</TableCell>
+            <TableCell textAlign="right">{aItem.weight}</TableCell>
 
             <TableCell>
             <Image
@@ -181,9 +213,9 @@ export function Gear() {
                   
         <TableHead>
         <TableRow>
-          <TableCell as="th">Name</TableCell>
-          <TableCell as="th">Weight</TableCell>
-          <TableCell as="th"></TableCell>
+          <TableCell textAlign="center" as="th">Name</TableCell>
+          <TableCell textAlign="center" as="th">Weight</TableCell>
+          <TableCell textAlign="center" as="th"></TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
@@ -191,6 +223,11 @@ export function Gear() {
         {items.map((note) => (
             <Item aItem={note}/>
         ))}
+        <TableRow>
+        <TableCell textAlign="right">Sum: </TableCell>
+        <TableCell textAlign="right">{itemSum}</TableCell>
+        <TableCell></TableCell>
+        </TableRow>
       </TableBody>
     </Table>
   </Tabs.Panel>
@@ -207,7 +244,7 @@ export function Gear() {
                  placeholder="Name"
                  label="Name"
                  labelHidden
-                 variation="quiet"
+                 variation="default"
                  required
                />
                <TextAreaField
@@ -215,15 +252,15 @@ export function Gear() {
                  placeholder="Description"
                  label="Description"
                  labelHidden
-                 variation="quiet"
-                 required
+                 variation="default"
+                 
                />
                <TextField
                  name="weight"
                  placeholder="Weight"
                  label="Weight"
                  labelHidden
-                 variation="quiet"
+                 variation="default"
                  required
                />
 
@@ -248,7 +285,7 @@ export function Gear() {
                  placeholder="Name"
                  label="Name"
                  labelHidden
-                 variation="quiet"
+                 variation="default"
                  required
                  defaultValue = {selectedItem.name}
                />
@@ -257,8 +294,8 @@ export function Gear() {
                  placeholder="Description"
                  label="Description"
                  labelHidden
-                 variation="quiet"
-                 required
+                 variation="default"
+                 
                  defaultValue = {selectedItem.description}
                />
                <TextField
@@ -266,7 +303,7 @@ export function Gear() {
                  placeholder="weight"
                  label="Weight"
                  labelHidden
-                 variation="quiet"
+                 variation="default"
                  required
                  defaultValue = {selectedItem.weight}
                />

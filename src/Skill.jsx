@@ -5,6 +5,7 @@ import {
   Tabs,
   Text,
   TextField,
+  SelectField,
   Heading,
   Flex,
   View,
@@ -28,6 +29,8 @@ import PlusImage from "./assets/plus.svg";
 import MinusImage from "./assets/minus.svg";
 import EditImage from "./assets/edit.svg";
 
+import {SkillDefinitions} from "./data/SkillDefinition.jsx";
+
 
 /**
  * @type {import('aws-amplify/data').Client<import('../amplify/data/resource').Schema>}
@@ -38,25 +41,58 @@ const client = generateClient({
   authMode: "userPool",
 });
 
+//
+// Skills display object
+//
 export function Skills() {
-    const [skills, setSkills] = useState([]);
-    const [selectedSkill, setSelectedSkill] = useState(
-      { id:"", description:"", modifier:"", name:"", die:""}
+  // List of skills in the database
+  const [skills, setSkills] = useState([]);
+   // The currently selected skill from clickin gon the edit icon
+  const [selectedSkill, setSelectedSkill] = useState(
+    { id:"", description:"", modifier:"", name:"", die:""}
+    );
+
+  // Current Tab to display
+  const [tab, setTab] = useState('1');
+
+  useEffect(() => {
+      fetchSkills();
+
+    }, []);
+
+    // 
+    // Display the list of options for the UI
+    //
+     function Skilloptions() {
+
+      return (
+          <SelectField
+            label="SkillList"
+            name="SkillList"
+            labelHidden
+            descriptiveText="Select Existing Skill"
+          >
+            <option value="CUSTOM">Custom Skill - Enter Below</option>
+                {SkillDefinitions.map((skill) => (
+                    <option value={skill.name}>{skill.name}</option>
+                ))}
+              
+          </SelectField>
       );
-    const [tab, setTab] = useState('1');
+    }
 
-    useEffect(() => {
-        fetchSkills();
-  
-      }, []);
-
-
+    //
+    // Get a list of the skills in the database.
+    //
     async function fetchSkills() {
         const { data: skills } = await client.models.Skill.list();
         setSkills(skills);
       
     }
 
+    //
+    // Add a skill to the database from an onClick event of the custom input form
+    //
     async function createSkill(event) {
       event.preventDefault();
   
@@ -71,7 +107,44 @@ export function Skills() {
       fetchSkills();
       event.target.reset();
     }
+
+    //
+    // Add a skill to the database from the list of standard skills list form
+    //
+    async function createStandardSkill(event) {
+      event.preventDefault();
+  
+      const form = new FormData(event.target);
+      
+      const name = form.get("SkillList");
+      console.log("Skill:", name);
+
+      for (const i in SkillDefinitions) {
+
+        console.log("inbound:" + name + " Loop:", SkillDefinitions[i].name);
+
+        if (SkillDefinitions[i].name === name) {
+          console.log("Made it to create locations!")
+
+          const {data: newSkill} = await client.models.Skill.create({
+              name: name,
+              description: SkillDefinitions[i].description,
+              die: "4",
+              modifier: "0"
+            });
+
+
+        };
+
+      }
+  
+      fetchSkills();
+      event.target.reset();
+    }
     
+    //
+    // Delete a skill from the database
+    //
     async function deleteSkill({ id }) {
         console.log("--------------")
         console.log(id);
@@ -88,6 +161,9 @@ export function Skills() {
         fetchSkills();
       }
 
+      //
+      // Update the information on a skill from the edit form
+      //
       async function editSkill (event) {
         event.preventDefault();
         const form = new FormData(event.target);
@@ -107,6 +183,9 @@ export function Skills() {
         
       }
 
+      //
+      // The UI element for a row of the skill table
+      //
     function Skill({aSkill}) {
 
        // console.log(aSkill);
@@ -114,8 +193,8 @@ export function Skills() {
         return (
         <TableRow key={aSkill.id}>
             <TableCell>{aSkill.name}</TableCell>
-            <TableCell>{aSkill.die}</TableCell>
-            <TableCell>{aSkill.modifier}</TableCell>
+            <TableCell textAlign="right">{aSkill.die}</TableCell>
+            <TableCell textAlign="right">{aSkill.modifier}</TableCell>
             <TableCell>
             <Image
                         alt="Add"
@@ -147,7 +226,9 @@ export function Skills() {
     
     }
 
-
+    //
+    // Return the main UI for the skill list
+    //
   return (
     <View>
     <Tabs.Container  defaultValue='1' value={tab} onValueChange={(tab) => setTab(tab)} color="var(--amplify-colors-blue-60)">
@@ -179,10 +260,10 @@ export function Skills() {
                   
         <TableHead>
         <TableRow>
-          <TableCell as="th">Name</TableCell>
-          <TableCell as="th">Die</TableCell>
-          <TableCell as="th">Mod</TableCell>
-          <TableCell as="th"></TableCell>
+          <TableCell textAlign="center" as="th">Name</TableCell>
+          <TableCell textAlign="center" as="th">Die</TableCell>
+          <TableCell textAlign="center" as="th">Mod</TableCell>
+          <TableCell textAlign="center" as="th"></TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
@@ -194,6 +275,22 @@ export function Skills() {
     </Table>
   </Tabs.Panel>
   <Tabs.Panel value="2">
+
+    <View as="form" margin="3rem 0" onSubmit={createStandardSkill}>
+    <Flex
+               direction="column"
+               justifyContent="center"
+               gap="2rem"
+               padding="2rem"
+             >
+
+      <Skilloptions />
+      
+      <Button type="submit" variation="primary">
+                             Existing Skill
+               </Button>
+    </Flex>
+     </View>
       <View as="form" margin="3rem 0" onSubmit={createSkill}>
              <Flex
                direction="column"
@@ -201,12 +298,14 @@ export function Skills() {
                gap="2rem"
                padding="2rem"
              >
+
+
                <TextField
                  name="name"
                  placeholder="Name"
                  label="Name"
                  labelHidden
-                 variation="quiet"
+                 variation="default"
                  required
                />
                <TextField
@@ -214,7 +313,7 @@ export function Skills() {
                  placeholder="Description"
                  label="Description"
                  labelHidden
-                 variation="quiet"
+                 variation="default"
                  required
                />
                <TextField
@@ -222,7 +321,7 @@ export function Skills() {
                  placeholder="die sides"
                  label="Sides"
                  labelHidden
-                 variation="quiet"
+                 variation="default"
                  required
                />
                 <TextField
@@ -230,13 +329,13 @@ export function Skills() {
                  placeholder="Modifier"
                  label="Modifier"
                  labelHidden
-                 variation="quiet"
+                 variation="default"
                  required
                />
 
 
              <Button type="submit" variation="primary">
-                             Create Skill
+                             Custom Skill
                </Button>
              </Flex>
              </View>
@@ -249,13 +348,13 @@ export function Skills() {
                gap="2rem"
                padding="2rem"
              >
-             
+
                <TextField
                  name="name"
                  placeholder="Name"
                  label="Name"
                  labelHidden
-                 variation="quiet"
+                 variation="default"
                  required
                  defaultValue = {selectedSkill.name}
                />
@@ -264,8 +363,8 @@ export function Skills() {
                  placeholder="Description"
                  label="Description"
                  labelHidden
-                 variation="quiet"
-                 required
+                 variation="default"
+                 
                  defaultValue = {selectedSkill.description}
                />
                <TextField
@@ -273,7 +372,7 @@ export function Skills() {
                  placeholder="die sides"
                  label="Sides"
                  labelHidden
-                 variation="quiet"
+                 variation="default"
                  required
                  defaultValue = {selectedSkill.die}
                />
@@ -282,8 +381,8 @@ export function Skills() {
                  placeholder="Modifier"
                  label="Modifier"
                  labelHidden
-                 variation="quiet"
-                 required
+                 variation="default"
+                 
                  defaultValue={selectedSkill.modifier}
                />
 
