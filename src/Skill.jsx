@@ -86,6 +86,11 @@ export function Skills() {
     //
     async function fetchSkills() {
         const { data: skills } = await client.models.Skill.list();
+        skills.sort((a, b) => {
+          if (a.name < b.name) return -1;
+          if (a.name > b.name) return 1;
+          return 0;
+        });
         setSkills(skills);
       
     }

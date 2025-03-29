@@ -41,7 +41,10 @@ const client = generateClient({
   authMode: "userPool",
 });
 
+const ALLOW_DELETING_ATTRIBUTES = false;
+
 export function Attributes() {
+    const [showSetup, setShowSetup] = useState(true);
     const [attributes, setAttributes] = useState(
         [
             // {name:"Strength", die:"d4", modifier:""},
@@ -85,12 +88,15 @@ export function Attributes() {
                 console.log(">>> NewItem:", newItem);
             
         }
+        setShowSetup(false);
+
         event.target.reset();
     }
 
     async function fetchAttributes() {
         const { data: loadedAttributed } = await client.models.Attr.list();
         console.log(">>>> Fetch Attributes:", loadedAttributed);
+        if (loadedAttributed.length > 0) setShowSetup(false);
         setAttributes (loadedAttributed);
     }
 
@@ -158,21 +164,34 @@ export function Attributes() {
 
     // }
 
+    function Selection ({currentValue}) {
 
-    function Options({currentValue}) {
+        const choices = [currentValue.die, "d4", "d6", "d8", "d10", "d12"];
 
         return (
-            <>
-                <option value={currentValue}>{currentValue}</option>
-                <option value="d4" selected>d4</option>
-                <option value="d6" selected>d6</option>
-                <option value="d8" selected>d8</option>
-                <option value="d10" selected>d10</option>
-                <option value="d12" selected>d12</option>
-          </>
-        )
+        <SelectField name={currentValue.name} id={currentValue.id} defaultValue={currentValue.die} 
+        onChange={updateAttributes}
+        label={currentValue.name}
+        options={choices}
+        labelHidden
+      ></SelectField>
+        );
 
     }
+    // function Options({currentValue}) {
+
+    //     return (
+    //         <>
+    //             <option value={currentValue}>{currentValue}</option>
+    //             <option value="d4" selected>d4</option>
+    //             <option value="d6" selected>d6</option>
+    //             <option value="d8" selected>d8</option>
+    //             <option value="d10" selected>d10</option>
+    //             <option value="d12" selected>d12</option>
+    //       </>
+    //     )
+
+    // }
 
     async function deleteAllAttributes(event) {
         const { data: attributes } = await client.models.Attr.list();
@@ -194,6 +213,31 @@ export function Attributes() {
 
     }
 
+    async function updateAttributesMod(event) {
+        event.preventDefault();
+        console.log(">>> event >>>");
+        console.log(event.target.value);
+            //console.log("Item:", item);
+            console.log("ID:", event.target.id);
+            console.log("Name:", event.target.name);
+            
+
+        const {data: updatedSkill, errors} = await client.models.Attr.update( {
+          id: event.target.id,
+          modifier: event.target.value,
+        })
+        console.log("errors:")
+        console.log(errors);
+
+        // fetchSkills();
+        // setTab("1");
+        // event.target.reset();
+        
+        fetchAttributes();
+       // event.target.reset();
+    }
+
+
     async function updateAttributes(event) {
         event.preventDefault();
         console.log(">>> event >>>");
@@ -202,6 +246,7 @@ export function Attributes() {
             console.log("ID:", event.target.id);
             console.log("Name:", event.target.name);
             
+        
         // let updateObject = structuredClone(attributes);
         // updateObject[event.target.id].die = event.target.value;
         
@@ -214,22 +259,19 @@ export function Attributes() {
        // const form = new FormData(event.target);
         //console.log(">>> Form >>>");
         //console.log(form);
-        // const {data: updatedSkill, errors} = await client.models.Skill.update( {
-        //   id: selectedSkill.id,
-        //   name: form.get("name"),
-        //   description: form.get("description"),
-        //   die: form.get("die"),
-        //   modifier: form.get("modifier")
-        // })
-        // console.log("errors:")
-        // console.log(errors);
+        const {data: updatedSkill, errors} = await client.models.Attr.update( {
+          id: event.target.id,
+          die: event.target.value,
+        })
+        console.log("errors:")
+        console.log(errors);
 
         // fetchSkills();
         // setTab("1");
         // event.target.reset();
         
         fetchAttributes();
-        event.target.reset();
+       // event.target.reset();
     }
 
 
@@ -253,10 +295,10 @@ export function Attributes() {
             <TableRow>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>
-                    <SelectField name={item.name} id={item.id} defaultValue={item.die} onChange={updateAttributes}>
-                    <Options currentValue={item.die}/></SelectField>
+                    
+                    <Selection  currentValue={item} />
                     </TableCell>
-                                    <TableCell> <TextField onChange={updateAttributes}
+                                    <TableCell> <TextField onChange={updateAttributesMod}
                                     name={item.name}
                                     id={item.id}
                                     placeholder="Mod"
@@ -277,8 +319,8 @@ export function Attributes() {
             </TableBody>
         </Table>
 
-        <Button onClick={deleteAllAttributes}>Delete all</Button>
-        <Button onClick={createAttributeData}>Fill</Button>
+        {ALLOW_DELETING_ATTRIBUTES? <Button onClick={deleteAllAttributes}>Delete all</Button>:""}
+        {showSetup?   <Button onClick={createAttributeData}>Setup Attributes</Button>:""}
 
         </View>
     );

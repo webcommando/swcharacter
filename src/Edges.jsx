@@ -44,14 +44,13 @@ const client = generateClient({
 // Gear display object 
 //
 //
-export function Gear() {
+export function Edges() {
   // List of item in the gear inventory
-    const [items, setItems] = useState([]);
-  // Sum of the weight for the items inventory
-    const [itemSum, setSum] = useState(0);
+    const [edges, setEdges] = useState([]);
+  
   // The current selected item from the edit button click
     const [selectedItem, setSelectedItem] = useState(
-      { id:"", description:"", weight:"", name:""}
+      { id:"", description:"", requirements:"", name:""}
       );
 
   // Current tab to display 
@@ -65,21 +64,16 @@ export function Gear() {
     //
     // Get a list of items in inventory from storage
     //
-    async function fetchGear() {
+    async function fetchEdges() {
       console.log(client.models);
-        const { data: items } = await client.models.Gear.list();
-        let sum = 0;
+        const { data: items } = await client.models.Edge.list();
+ 
         items.sort((a, b) => {
           if (a.name < b.name) return -1;
           if (a.name > b.name) return 1;
           return 0;
         });
 
-      for (const item in items) {
-        console.log("Value:", parseFloat(items[item].weight));
-        sum += parseFloat(items[item].weight);
-      }
-        setSum(sum);
         setItems(items);
       
     }
@@ -87,18 +81,18 @@ export function Gear() {
     // 
     // Create an item in inventory in storage
     //
-    async function createItem(event) {
+    async function createEdge(event) {
       event.preventDefault();
   
       const form = new FormData(event.target);
-      const {data: newItem} = await client.models.Gear.create({
+      const {data: newItem} = await client.models.Edge.create({
         name: form.get("name"),
         description: form.get("description"),
-        weight: form.get("weight"),
+       requirements: form.get("requirement"),
         
       });
   
-      fetchGear();
+      fetchEdges();
       event.target.reset();
     }
     
@@ -114,7 +108,7 @@ export function Gear() {
           
         };
     
-        const { data: deletedNote } = await client.models.Gear.delete(
+        const { data: deletedNote } = await client.models.Edge.delete(
           toBeDeletedNote
         );
         console.log(deletedNote);
@@ -127,11 +121,11 @@ export function Gear() {
       async function editItem (event) {
         event.preventDefault();
         const form = new FormData(event.target);
-        const {data: updatedItem, errors} = await client.models.Gear.update( {
+        const {data: updatedItem, errors} = await client.models.Edge.update( {
           id: selectedItem.id,
           name: form.get("name"),
           description: form.get("description"),
-          weight: form.get("weight"),
+          requirements: form.get("requirement"),
       
         })
         console.log("errors:")
@@ -146,16 +140,20 @@ export function Gear() {
       //
       // The UI element for a single item
       //
-    function Item({aItem}) {
+    function Edge({aItem}) {
 
        // console.log(aSkill);
 
         return (
-        <TableRow key={aItem.id}>
-            <TableCell>{aItem.name}</TableCell>
-            <TableCell textAlign="right">{aItem.weight}</TableCell>
 
-            <TableCell>
+            <Accordion.Item value="Accordion-item">
+        <Accordion.Trigger>
+            {aItem.name}
+          <Accordion.Icon />
+        </Accordion.Trigger>
+        <Accordion.Content>
+          {aItem.description}
+
             <Image
                         alt="Add"
                         src={MinusImage}
@@ -179,9 +177,9 @@ export function Gear() {
                         opacity="100%"
                         onClick={() => {setTab('3'); setSelectedItem(aItem);}}
                       />
-                    
-        </TableCell>
-        </TableRow>
+    </Accordion.Content>
+    </Accordion.Item>
+
         )
     
     }
@@ -210,33 +208,46 @@ export function Gear() {
 
     <Tabs.Panel value="1">
     
-        <Table
-                caption=""
-                highlightOnHover={false}
-                size="small"
-                variation="striped">
-                  
-        <TableHead>
-        <TableRow>
-          <TableCell textAlign="center" as="th">Name</TableCell>
-          <TableCell textAlign="center" as="th">Weight</TableCell>
-          <TableCell textAlign="center" as="th"></TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
+    <Flex
+  direction="row"
+  justifyContent="flex-start"
+  alignItems="stretch"
+  alignContent="flex-start"
+  wrap="nowrap"
+  gap="1rem"
+    >
 
-        {items.map((note) => (
-            <Item aItem={note}/>
+    <Accordion.Container>
+    {edges.map((note) => (
+            <Edge aItem={note}/>
         ))}
-        <TableRow>
-        <TableCell textAlign="right">Sum: </TableCell>
-        <TableCell textAlign="right">{itemSum}</TableCell>
-        <TableCell></TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
-  </Tabs.Panel>
-  <Tabs.Panel value="2">
+      <Accordion.Item value="Accordion-item">
+        <Accordion.Trigger>
+          What is an Accordion?
+          <Accordion.Icon />
+        </Accordion.Trigger>
+        <Accordion.Content>
+          An Accordion contains all the parts of a collapsible section.
+        </Accordion.Content>
+      </Accordion.Item>
+      <Accordion.Item value="unique-value">
+        <Accordion.Trigger>
+          This is the item title
+          <Accordion.Icon />
+        </Accordion.Trigger>
+        <Accordion.Content>
+          The `children` of the Accordion are displayed here.
+        </Accordion.Content>
+      </Accordion.Item>
+    </Accordion.Container>
+
+
+</Flex>
+
+ 
+
+    </Tabs.Panel>
+    <Tabs.Panel value="2">
       <View as="form" margin="3rem 0" onSubmit={createItem}>
              <Flex
                direction="column"
@@ -261,9 +272,9 @@ export function Gear() {
                  
                />
                <TextField
-                 name="weight"
-                 placeholder="Weight"
-                 label="Weight"
+                 name="requirements"
+                 placeholder="requirements"
+                 label="requirements"
                  labelHidden
                  variation="default"
                  required
@@ -304,13 +315,13 @@ export function Gear() {
                  defaultValue = {selectedItem.description}
                />
                <TextField
-                 name="weight"
-                 placeholder="weight"
-                 label="Weight"
+                 name="requirements"
+                 placeholder="requirements"
+                 label="requirements"
                  labelHidden
                  variation="default"
                  required
-                 defaultValue = {selectedItem.weight}
+                 defaultValue = {selectedItem.requirements}
                />
 
              <Button type="submit" variation="primary">

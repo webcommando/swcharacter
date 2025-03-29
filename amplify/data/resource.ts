@@ -37,6 +37,7 @@ const schema = a.schema({
     .model({
       name:a.string(),
       description: a.string(),
+      level: a.string(),
       
     })
     .authorization((allow) => [allow.owner()]),
@@ -44,6 +45,7 @@ const schema = a.schema({
     .model({
       name:a.string(),
       description: a.string(),
+      requirements: a.string(),
     })
     .authorization((allow) => [allow.owner()]),
     Attr: a
@@ -53,6 +55,7 @@ const schema = a.schema({
       modifier:a.string()
     })
     .authorization((allow) => [allow.owner()]),
+   
     
 });
 console.log(">>> Schema >>>");

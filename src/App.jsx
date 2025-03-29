@@ -26,6 +26,7 @@ import { NotificationRule } from "aws-cdk-lib/aws-codestarnotifications";
 import { Skills } from "./Skill.jsx";
 import { Gear } from "./Gear.jsx";
 import {Attributes} from "./Attributes.jsx";
+import {Edges} from "./Edges.jsx";
 
 /**
  * @type {import('aws-amplify/data').Client<import('../amplify/data/resource').Schema>}
@@ -125,6 +126,7 @@ export default function App() {
             columnEnd="-1"
           >   
             Edges and Hindrances 
+ 
           
           </Card>
           <Card
