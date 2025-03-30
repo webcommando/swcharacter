@@ -61,7 +61,7 @@ export function Skills() {
     }, []);
 
     // 
-    // Display the list of options for the UI
+    // Display the list of options for the UI.  SkillList is the selection element.
     //
      function Skilloptions() {
 
@@ -121,9 +121,12 @@ export function Skills() {
   
       const form = new FormData(event.target);
       
+      // SkillList is the selection element
       const name = form.get("SkillList");
       console.log("Skill:", name);
 
+      // Search through the defined list for a match and then store it.
+      // A list is not the most efficient but there is a fairly limited list
       for (const i in SkillDefinitions) {
 
         console.log("inbound:" + name + " Loop:", SkillDefinitions[i].name);
@@ -131,6 +134,7 @@ export function Skills() {
         if (SkillDefinitions[i].name === name) {
           console.log("Made it to create locations!")
 
+          // We default to "4" and "0" Modifier for a new skill. 
           const {data: newSkill} = await client.models.Skill.create({
               name: name,
               description: SkillDefinitions[i].description,
@@ -151,9 +155,7 @@ export function Skills() {
     // Delete a skill from the database
     //
     async function deleteSkill({ id }) {
-        console.log("--------------")
-        console.log(id);
-        console.log("--------------")
+  
         const toBeDeletedNote = {
           id: id,
           
@@ -167,10 +169,11 @@ export function Skills() {
       }
 
       //
-      // Update the information on a skill from the edit form
+      // Update the information on a skill from the edit form.
       //
       async function editSkill (event) {
         event.preventDefault();
+
         const form = new FormData(event.target);
         const {data: updatedSkill, errors} = await client.models.Skill.update( {
           id: selectedSkill.id,
@@ -189,7 +192,8 @@ export function Skills() {
       }
 
       //
-      // The UI element for a row of the skill table
+      // The UI element for a row of the skill table.  Include an icon for deleting and editing
+      // Note: the edit icon switches to hidden tab and sets the current selected item for the edit tab.
       //
     function Skill({aSkill}) {
 
@@ -202,28 +206,28 @@ export function Skills() {
             <TableCell textAlign="right">{aSkill.modifier}</TableCell>
             <TableCell>
             <Image
-                        alt="Add"
-                        src={MinusImage}
-                        objectFit="initial"
-     
-                        backgroundColor="initial"
-                        height="20px"
-                        width="20px"
-                        opacity="100%"
-                        onClick={() => deleteSkill(aSkill)}
-                      />
+                alt="Add"
+                src={MinusImage}
+                objectFit="initial"
 
-                    <Image
-                        alt="Edit"
-                        src={EditImage}
-                        objectFit="initial"
- 
-                        backgroundColor="initial"
-                        height="20px"
-                        width="20px"
-                        opacity="100%"
-                        onClick={() => {setTab('3'); setSelectedSkill(aSkill);}}
-                      />
+                backgroundColor="initial"
+                height="20px"
+                width="20px"
+                opacity="100%"
+                onClick={() => deleteSkill(aSkill)}
+              />
+
+            <Image
+                alt="Edit"
+                src={EditImage}
+                objectFit="initial"
+
+                backgroundColor="initial"
+                height="20px"
+                width="20px"
+                opacity="100%"
+                onClick={() => {setTab('3'); setSelectedSkill(aSkill);}}
+              />
                     
         </TableCell>
         </TableRow>
@@ -232,7 +236,8 @@ export function Skills() {
     }
 
     //
-    // Return the main UI for the skill list
+    // Return the main UI for the skill list.  This includes three tabs. One, the main skill list. Second includes the 
+    // update pane. Third, a hidden edit tab.
     //
   return (
     <View>

@@ -75,8 +75,8 @@ export default function App() {
             columnEnd="-1"
             backgroundColor={tokens.colors.blue[10]}
           >
-            Header
-            <Button onClick={signOut}>Sign Out</Button>
+            <Flex><div><Button onClick={signOut}>Sign Out</Button></div><div>Example React Data Management Application with AWS.</div></Flex>
+            
           </Card>
           <Card
             columnStart="1"
@@ -91,14 +91,29 @@ export default function App() {
             columnEnd="3"
             backgroundColor={tokens.colors.blue[10]}
           >
-            Stats
+            Notes:
+            <p>This page displays a multi-tier React based database application that uses React with AWS Amplify backend. This is a single page using a grid layout.
+              Each section is independent within the page and demostrates one aspect of React/Database interaction.
+            </p>
+            <p>The Attributes section demonstrates in-line editing where the database is continuously updated for any changes to the 
+              user interface elements. 
+            </p>
+            
           </Card>
           <Card
             columnStart="3"
             columnEnd="-1"
             backgroundColor={tokens.colors.blue[10]}
           >
-            Image
+            Notes (continued):
+            <p>The Skills section shows a traditional Create, Edit, Delete application.  The plus button brings up an entry page
+              that includes the ability to select from a drop down of standard skills or enter a custom one. Each line also includes a
+              edit icon and delete icon.
+            </p>
+            <p>The Gear section has a similar design to the Skills section but includes a calculation for the values in the list.</p>
+            <p>Finally, the Edges section provides an Accordian view of the data stored for each edge but also includes the same
+              create, edit and delete functionality.
+            </p>
           </Card>
           <Card
             columnStart="1"
@@ -125,8 +140,7 @@ export default function App() {
             columnStart="3"
             columnEnd="-1"
           >   
-            Edges and Hindrances 
- 
+        <Edges />
           
           </Card>
           <Card
@@ -134,14 +148,14 @@ export default function App() {
             columnStart="1"
             columnEnd="-1"
           >
-            Powers
+            This application is deployed using Amplify from Git on AWS.
           </Card>
           <Card
            backgroundColor={tokens.colors.blue[10]}
             columnStart="1"
             columnEnd="-1"
           >
-            Weapon
+            Carl Davis 2025
           </Card>
         </Grid>
 

@@ -14,6 +14,8 @@ import {
   Divider,
   Card,
   useTheme,
+  Accordion,
+  SelectField,
   Table, TableCell, TableBody, TableHead, TableRow,
   Input,
 } from "@aws-amplify/ui-react";
@@ -28,6 +30,7 @@ import { NotificationRule } from "aws-cdk-lib/aws-codestarnotifications";
 import PlusImage from "./assets/plus.svg";
 import MinusImage from "./assets/minus.svg";
 import EditImage from "./assets/edit.svg";
+import  {EdgesDefinition} from "./data/EdgesDefinitions.jsx";
 
 
 /**
@@ -45,10 +48,10 @@ const client = generateClient({
 //
 //
 export function Edges() {
-  // List of item in the gear inventory
+  // List Edges the user has
     const [edges, setEdges] = useState([]);
   
-  // The current selected item from the edit button click
+  // The current selected Edge from the edit button click
     const [selectedItem, setSelectedItem] = useState(
       { id:"", description:"", requirements:"", name:""}
       );
@@ -57,12 +60,12 @@ export function Edges() {
     const [tab, setTab] = useState('1');
 
     useEffect(() => {
-        fetchGear();
+        fetchEdges();
   
       }, []);
 
     //
-    // Get a list of items in inventory from storage
+    // Get a list of Edges from storage.
     //
     async function fetchEdges() {
       console.log(client.models);
@@ -74,12 +77,71 @@ export function Edges() {
           return 0;
         });
 
-        setItems(items);
+        setEdges(items);
       
     }
 
     // 
-    // Create an item in inventory in storage
+    // Display the list of options for the UI
+    //
+     function Edgeoptions() {
+
+    // the name of the select field is called "EdgesList"
+      return (
+          <SelectField
+            label="EdgesList"
+            name="EdgesList"
+            labelHidden
+            descriptiveText="Select Existing Edge"
+          >
+            <option value="CUSTOM">Custom Edge - Enter Below</option>
+                {EdgesDefinition.map((edge) => (
+                    <option value={edge.name}>{edge.name}</option>
+                ))}
+              
+          </SelectField>
+      );
+    }
+
+    //
+    // Add an Edge from a list of standard edges.
+    //
+    async function createStandardEdge(event) {
+      event.preventDefault();
+  
+      const form = new FormData(event.target);
+      
+      // get the value from "EdgesList"
+      const name = form.get("EdgesList");
+
+      // Iterate through the definition list to find the right one. 
+      // not the fastest but there are a limit to the number of Edges
+      for (const i in EdgesDefinition) {
+
+        //console.log("inbound:" + name + " Loop:", EdgesDefinition[i].name);
+
+        // if the name matches use that data to store
+        if (EdgesDefinition[i].name === name) {
+          console.log("Made it to create locations!")
+
+          const {data: newSkill} = await client.models.Edge.create({
+              name: name,
+              description: EdgesDefinition[i].description,
+              requirements: EdgesDefinition[i].requirements,
+             
+            });
+
+
+        };
+
+      }
+  
+      fetchEdges();
+      event.target.reset();
+    }
+
+    // 
+    // Create an Edge from the form data (Custom Edge)
     //
     async function createEdge(event) {
       event.preventDefault();
@@ -88,7 +150,7 @@ export function Edges() {
       const {data: newItem} = await client.models.Edge.create({
         name: form.get("name"),
         description: form.get("description"),
-       requirements: form.get("requirement"),
+       requirements: form.get("requirements"),
         
       });
   
@@ -97,12 +159,10 @@ export function Edges() {
     }
     
     //
-    // Delete an item from storage
+    // Delete an Edge from storage
     //
-    async function deleteItem({ id }) {
-        console.log("--------------")
-        console.log(id);
-        console.log("--------------")
+    async function deleteEdge({ id }) {
+        
         const toBeDeletedNote = {
           id: id,
           
@@ -111,34 +171,40 @@ export function Edges() {
         const { data: deletedNote } = await client.models.Edge.delete(
           toBeDeletedNote
         );
+
         console.log(deletedNote);
-        fetchGear();
+        fetchEdges();
       }
 
       //
-      // Edit an item in storage based on the selections
+      // Edit an Edge in storage based on the selection
       //
-      async function editItem (event) {
+      async function editEdge (event) {
         event.preventDefault();
+
         const form = new FormData(event.target);
         const {data: updatedItem, errors} = await client.models.Edge.update( {
           id: selectedItem.id,
           name: form.get("name"),
           description: form.get("description"),
-          requirements: form.get("requirement"),
+          requirements: form.get("requirements"),
       
         })
         console.log("errors:")
         console.log(errors);
 
-        fetchGear();
+        fetchEdges();
+
+        // Go back to the first tab after the edit executes
         setTab("1");
         event.target.reset();
         
       }
 
       //
-      // The UI element for a single item
+      // The UI element for a single Edge - uses an accordian discplay with description and 
+      // edit / delete icons. Note the edit icon, sets tab display for the third tab and sets the 
+      // selected item.
       //
     function Edge({aItem}) {
 
@@ -146,37 +212,40 @@ export function Edges() {
 
         return (
 
-            <Accordion.Item value="Accordion-item">
+            <Accordion.Item value={aItem.id}>
         <Accordion.Trigger>
             {aItem.name}
           <Accordion.Icon />
         </Accordion.Trigger>
         <Accordion.Content>
+         <p>
           {aItem.description}
+          </p><p>
+            <Image
+                alt="Add"
+                src={MinusImage}
+                objectFit="initial"
+
+                backgroundColor="initial"
+                height="20px"
+                width="20px"
+                opacity="100%"
+                onClick={() => deleteEdge(aItem)}
+                />
 
             <Image
-                        alt="Add"
-                        src={MinusImage}
-                        objectFit="initial"
-     
-                        backgroundColor="initial"
-                        height="20px"
-                        width="20px"
-                        opacity="100%"
-                        onClick={() => deleteItem(aItem)}
-                      />
+                alt="Edit"
+                src={EditImage}
+                objectFit="initial"
 
-                    <Image
-                        alt="Edit"
-                        src={EditImage}
-                        objectFit="initial"
- 
-                        backgroundColor="initial"
-                        height="20px"
-                        width="20px"
-                        opacity="100%"
-                        onClick={() => {setTab('3'); setSelectedItem(aItem);}}
-                      />
+                backgroundColor="initial"
+                height="20px"
+                width="20px"
+                opacity="100%"
+                onClick={() => {setTab('3'); setSelectedItem(aItem);}}
+                />
+                </p>
+        <p>Requirements: {aItem.requirements}</p>
     </Accordion.Content>
     </Accordion.Item>
 
@@ -185,11 +254,13 @@ export function Edges() {
     }
 
 
+ // The base user interface.  Includes three tabs.  One is the list, second is the + sign and the add,
+ // third is hidden but hold the edit function that is displyed on the click of edit icon.
   return (
     <View>
     <Tabs.Container  defaultValue='1' value={tab} onValueChange={(tab) => setTab(tab)} color="var(--amplify-colors-blue-60)">
     <Tabs.List indicatorPosition="top">
-      <Tabs.Item value="1">Gear</Tabs.Item>
+      <Tabs.Item value="1">Edges</Tabs.Item>
       <Tabs.Item value="2">
         <Image
             alt="Add"
@@ -208,47 +279,35 @@ export function Edges() {
 
     <Tabs.Panel value="1">
     
-    <Flex
-  direction="row"
-  justifyContent="flex-start"
-  alignItems="stretch"
-  alignContent="flex-start"
-  wrap="nowrap"
-  gap="1rem"
-    >
+
 
     <Accordion.Container>
     {edges.map((note) => (
             <Edge aItem={note}/>
         ))}
-      <Accordion.Item value="Accordion-item">
-        <Accordion.Trigger>
-          What is an Accordion?
-          <Accordion.Icon />
-        </Accordion.Trigger>
-        <Accordion.Content>
-          An Accordion contains all the parts of a collapsible section.
-        </Accordion.Content>
-      </Accordion.Item>
-      <Accordion.Item value="unique-value">
-        <Accordion.Trigger>
-          This is the item title
-          <Accordion.Icon />
-        </Accordion.Trigger>
-        <Accordion.Content>
-          The `children` of the Accordion are displayed here.
-        </Accordion.Content>
-      </Accordion.Item>
+ 
     </Accordion.Container>
 
 
-</Flex>
-
- 
 
     </Tabs.Panel>
     <Tabs.Panel value="2">
-      <View as="form" margin="3rem 0" onSubmit={createItem}>
+    <View as="form" margin="3rem 0" onSubmit={createStandardEdge}>
+    <Flex
+               direction="column"
+               justifyContent="center"
+               gap="2rem"
+               padding="2rem"
+             >
+
+      <Edgeoptions />
+      
+      <Button type="submit" variation="primary">
+                             Existing Edge
+               </Button>
+    </Flex>
+     </View>
+      <View as="form" margin="3rem 0" onSubmit={createEdge}>
              <Flex
                direction="column"
                justifyContent="center"
@@ -282,13 +341,13 @@ export function Edges() {
 
 
              <Button type="submit" variation="primary">
-                             Create Item
+                             Create Edge
                </Button>
              </Flex>
              </View>
 </Tabs.Panel>
 <Tabs.Panel value="3">
-<View as="form" margin="3rem 0" onSubmit={editItem}>
+<View as="form" margin="3rem 0" onSubmit={editEdge}>
              <Flex
                direction="column"
                justifyContent="center"
@@ -325,7 +384,7 @@ export function Edges() {
                />
 
              <Button type="submit" variation="primary">
-                             Edit Item
+                             Edit Edge
                </Button>
              </Flex>
              </View>

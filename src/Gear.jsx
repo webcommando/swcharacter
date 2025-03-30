@@ -106,9 +106,7 @@ export function Gear() {
     // Delete an item from storage
     //
     async function deleteItem({ id }) {
-        console.log("--------------")
-        console.log(id);
-        console.log("--------------")
+
         const toBeDeletedNote = {
           id: id,
           
@@ -122,10 +120,11 @@ export function Gear() {
       }
 
       //
-      // Edit an item in storage based on the selections
+      // Edit an item in storage based on the selection currently defined
       //
       async function editItem (event) {
         event.preventDefault();
+
         const form = new FormData(event.target);
         const {data: updatedItem, errors} = await client.models.Gear.update( {
           id: selectedItem.id,
@@ -138,6 +137,7 @@ export function Gear() {
         console.log(errors);
 
         fetchGear();
+        // Set the tab back to the main list display after the edit executes
         setTab("1");
         event.target.reset();
         
@@ -145,6 +145,7 @@ export function Gear() {
 
       //
       // The UI element for a single item
+      // Note the edit icon sets the tab to the edit tab and sets current selection.
       //
     function Item({aItem}) {
 
@@ -186,7 +187,8 @@ export function Gear() {
     
     }
 
-
+  // Base user interface for the Gear list.  This has three tabs.  First is the list, second is a (+) with the
+  // add form, and third is the edit panel which is hidden until the select icon is selected.
   return (
     <View>
     <Tabs.Container  defaultValue='1' value={tab} onValueChange={(tab) => setTab(tab)} color="var(--amplify-colors-blue-60)">
@@ -211,10 +213,10 @@ export function Gear() {
     <Tabs.Panel value="1">
     
         <Table
-                caption=""
-                highlightOnHover={false}
-                size="small"
-                variation="striped">
+          caption=""
+          highlightOnHover={false}
+          size="small"
+          variation="striped">
                   
         <TableHead>
         <TableRow>
