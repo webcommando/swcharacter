@@ -40,28 +40,3 @@
 .read-the-docs {
   color: #888;
 }
-
-tooltip {
-  position: relative;
-  display: inline-block;
-  border-bottom: 1px dotted black;
-  /* color of the span text */
-  /* color: rgb(119, 162, 241); */
-}
-
-.tooltip .tooltiptext {
-  visibility: hidden;
-  width: 300px;
-  background-color: blue;
-  /* color of the tooltip text */
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 0;
-  position: absolute;
-  z-index: 1;
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-}
