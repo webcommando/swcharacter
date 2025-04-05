@@ -43,10 +43,18 @@ const client = generateClient({
 //
 export default function App() {
   const [notes, setNotes] = useState([]);
+  const [skillDescription, setSkillDescription] = useState("");
 
 
   const { tokens } = useTheme();
 
+  // function handleDescription({desc}) {
+  //   setSkillDescription(desc);
+  // }
+
+  const handleDescription = (childState) => {
+    setSkillDescription(childState);
+  };
 
   return (
     <Authenticator>
@@ -148,7 +156,7 @@ export default function App() {
             columnStart="1"
             columnEnd="-1"
           >
-            This application is deployed using Amplify from Git on AWS.
+            
           </Card>
           <Card
            backgroundColor={tokens.colors.blue[10]}

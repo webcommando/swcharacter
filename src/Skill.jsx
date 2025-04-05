@@ -94,6 +94,7 @@ export function Skills() {
         setSkills(skills);
       
     }
+    
 
     //
     // Add a skill to the database from an onClick event of the custom input form

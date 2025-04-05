@@ -153,7 +153,10 @@ export function Gear() {
 
         return (
         <TableRow key={aItem.id}>
-            <TableCell>{aItem.name}</TableCell>
+            <TableCell>{aItem.name}
+              {aItem.description.length > 0 ? 
+              <div class="tooltip"> (view)<span class="tooltiptext">{aItem.description}</span> </div> : ""}
+            </TableCell>
             <TableCell textAlign="right">{aItem.weight}</TableCell>
 
             <TableCell>
